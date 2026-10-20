@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Landing tables populated by `python -m ecommerce_intel.ingest` from the
+      Olist Brazilian E-Commerce Public Dataset CSVs. Never edited in place.
+    schema: raw
+    tables:
+      - name: orders
+        description: "One row per order. Grain: order_id."
+      - name: customers
+        description: "One row per order-level customer identifier. Grain: customer_id."
+      - name: order_items
+        description: "One row per item within an order. Grain: (order_id, order_item_id)."
+      - name: order_payments
+        description: "One row per payment record of an order. Grain: (order_id, payment_sequential)."
+      - name: order_reviews
+        description: "One row per review record. Grain: none (review_id is duplicated in the source)."
+      - name: products
+        description: "One row per product. Grain: product_id."
+      - name: sellers
+        description: "One row per seller. Grain: seller_id."
+      - name: geolocation
+        description: "One row per zip-code observation. Grain: none (duplicates by design)."
+      - name: product_category_name_translation
+        description: "Portuguese to English product category mapping. Grain: product_category_name."

@@ -1,0 +1,65 @@
+version: 2
+
+models:
+  - name: int_order_items_agg
+    description: >
+      Order-grain aggregation of order items (item count, goods and freight
+      value). Safe 1:1 join to orders; prevents the items x payments x reviews
+      fan-out problem.
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: order_revenue
+        description: goods_value + freight_value for the whole order.
+        tests:
+          - not_null
+
+  - name: int_payments_agg
+    description: Order-grain aggregation of payment records.
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: total_payment_value
+        tests:
+          - not_null
+
+  - name: int_reviews_agg
+    description: >
+      One deduped review per order (latest review_answer_timestamp wins).
+      review_count preserves how many review rows existed.
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+
+  - name: int_order_facts
+    description: >
+      The analytical backbone: exactly one row per order combining status,
+      customer geography, item/payment aggregates, one deduplicated review and
+      delivery metrics, plus the population flags used by every mart.
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: is_revenue_order
+        description: True when the order has at least one item and its status is not canceled/unavailable.
+        tests:
+          - not_null
+      - name: is_delivered_measured
+        description: True when the order is delivered and has a delivery timestamp.
+        tests:
+          - not_null
+
+  - name: int_zip_centroids
+    description: One row per zip code (centroid of geolocation observations).
+    columns:
+      - name: zip_code_prefix
+        tests:
+          - unique
+          - not_null

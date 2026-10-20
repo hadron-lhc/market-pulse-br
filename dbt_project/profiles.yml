@@ -1,0 +1,15 @@
+# dbt profile for the Olist project. All secrets live in environment
+# variables (loaded from .env by the Makefile); nothing sensitive is committed.
+olist:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('PGHOST', 'localhost') }}"
+      user: "{{ env_var('PGUSER', 'postgres') }}"
+      password: "{{ env_var('PGPASSWORD', '') }}"
+      port: "{{ env_var('PGPORT', '5432') | int }}"
+      dbname: "{{ env_var('PGDATABASE', 'olist_analytics') }}"
+      schema: analytics
+      threads: 4
+      sslmode: prefer

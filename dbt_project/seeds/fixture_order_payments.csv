@@ -1,0 +1,5 @@
+order_id,payment_sequential,payment_type,payment_installments,payment_value
+o_multi_item,1,boleto,1,170.00
+o_multi_pay,1,credit_card,2,20.00
+o_multi_pay,2,voucher,1,15.00
+o_canceled,1,credit_card,1,100.00

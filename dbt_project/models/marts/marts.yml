@@ -1,0 +1,134 @@
+version: 2
+
+models:
+  - name: mart_monthly_revenue
+    description: >
+      Grain: purchase_month. Orders, customers, items and revenue
+      (price + freight) for revenue orders (>=1 item, status not
+      canceled/unavailable). Safe from fan-out: aggregates come from
+      int_order_facts (one row per order).
+    columns:
+      - name: purchase_month
+        tests:
+          - unique
+          - not_null
+      - name: revenue
+        tests:
+          - not_null
+
+  - name: mart_category_performance
+    description: >
+      Grain: product_category (all-time). Item-grain revenue with order counts
+      from distinct order-category pairs. orders is not additive across
+      categories (multi-category orders count in each category).
+    columns:
+      - name: product_category
+        tests:
+          - unique
+          - not_null
+
+  - name: mart_category_monthly
+    description: "Grain: (product_category, purchase_month). Category revenue trends."
+    columns:
+      - name: product_category
+        tests:
+          - not_null
+      - name: purchase_month
+        tests:
+          - not_null
+
+  - name: mart_seller_performance
+    description: >
+      Grain: seller_id (all-time). Seller revenue from own items; delivery and
+      review columns are order-level associations (orders containing the
+      seller), not seller quality scores. has_min_sample = true when the
+      seller has >= 30 revenue orders.
+    columns:
+      - name: seller_id
+        tests:
+          - unique
+          - not_null
+      - name: revenue
+        tests:
+          - not_null
+
+  - name: mart_delivery_monthly
+    description: >
+      Grain: purchase_month. Delivery duration and lateness for delivered
+      orders with a delivery timestamp (is_delivered_measured).
+    columns:
+      - name: purchase_month
+        tests:
+          - unique
+          - not_null
+
+  - name: mart_delivery_by_state
+    description: "Grain: customer_state. Delivery performance of customers per Brazilian state."
+    columns:
+      - name: customer_state
+        tests:
+          - unique
+          - not_null
+
+  - name: mart_delivery_by_category
+    description: >
+      Grain: product_category. Orders containing the category; not additive
+      across categories.
+    columns:
+      - name: product_category
+        tests:
+          - unique
+          - not_null
+
+  - name: mart_payment_mix
+    description: >
+      Grain: (payment_type, purchase_month). Distinct orders per payment type
+      and payment value sums. Orders paying with several types appear under
+      each type (not additive across types).
+    columns:
+      - name: payment_type
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['credit_card', 'boleto', 'voucher', 'debit_card', 'not_defined']
+
+  - name: mart_payment_installments
+    description: >
+      Grain: installment_bin for credit-card revenue orders. Describes the
+      association between installment count and order value; not causal.
+    columns:
+      - name: installment_bin
+        tests:
+          - not_null
+
+  - name: mart_review_by_lateness
+    description: >
+      Grain: (lateness_bucket, review_score). Review score distribution per
+      delivery-lateness bucket.
+    columns:
+      - name: lateness_bucket
+        tests:
+          - not_null
+
+  - name: mart_review_by_state
+    description: "Grain: customer_state. Review scores and lateness for reviewed orders per state."
+
+  - name: mart_review_by_category
+    description: "Grain: product_category. Review scores for orders containing the category."
+
+  - name: mart_customer_cohorts
+    description: >
+      Grain: (cohort_month, months_since_first_purchase). Active customers and
+      orders per cohort offset. customer_unique_id is pseudonymous; late
+      cohorts have censored windows (dataset ends Oct-2018).
+    columns:
+      - name: cohort_month
+        tests:
+          - not_null
+      - name: months_since_first_purchase
+        tests:
+          - not_null
+
+  - name: mart_kpi_overview
+    description: Single-row headline KPI table used by the dashboard and reports.

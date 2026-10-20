@@ -1,0 +1,41 @@
+[project]
+name = "ecommerce-intelligence-platform"
+version = "0.1.0"
+description = "Analytics pipeline and insights for the Olist Brazilian e-commerce dataset"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas>=2.2",
+    "psycopg[binary]>=3.2",
+    "python-dotenv>=1.0",
+    "plotly>=6.0",
+    "streamlit>=1.40",
+    "scipy>=1.14",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.9",
+    "dbt-postgres>=1.9",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = ["dbt_project"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ecommerce_intel"]
