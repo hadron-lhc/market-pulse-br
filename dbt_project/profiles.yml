@@ -12,4 +12,4 @@ olist:
       dbname: "{{ env_var('PGDATABASE', 'olist_analytics') }}"
       schema: analytics
       threads: 4
-      sslmode: prefer
+      sslmode: "{{ env_var('PGSSLMODE', 'prefer') }}"
