@@ -1,4 +1,4 @@
-"""Executive dashboard over the dbt marts.
+"""Market Pulse — executive dashboard over the dbt marts.
 
 Run from the repository root:
 
@@ -10,6 +10,8 @@ business logic of its own beyond presentation-time filtering of aggregates.
 
 from __future__ import annotations
 
+import os
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -18,10 +20,28 @@ import streamlit as st
 from ecommerce_intel.analysis._common import get_conn, load_df
 
 st.set_page_config(
-    page_title="E-commerce Intelligence Platform",
+    page_title="Market Pulse",
     page_icon="📊",
     layout="wide",
 )
+
+SECRET_KEYS = ("PGHOST", "PGPORT", "PGUSER", "PGPASSWORD", "PGDATABASE", "PGSSLMODE")
+
+
+def export_secrets_to_env() -> None:
+    """Surface st.secrets (Streamlit Community Cloud) as PG* environment variables."""
+    if os.environ.get("PGHOST"):
+        return
+    try:
+        secrets = st.secrets
+    except FileNotFoundError:
+        return
+    for key in SECRET_KEYS:
+        if key in secrets:
+            os.environ[key] = str(secrets[key])
+
+
+export_secrets_to_env()
 
 MONTHLY_REVENUE = """
 select purchase_month, orders, customers, items_sold, revenue, avg_order_value
@@ -151,7 +171,7 @@ period_md = md[
     & (md["purchase_month"] <= pd.Timestamp(month_range[1]))
 ]
 
-st.title("E-commerce Intelligence Platform")
+st.title("Market Pulse")
 st.caption(
     "Olist Brazilian E-Commerce Public Dataset · revenue = item price + freight, "
     "canceled/unavailable excluded · delivery metrics use delivered orders with a "

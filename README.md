@@ -1,4 +1,4 @@
-# E-commerce Intelligence Platform
+# Market Pulse — E-commerce Intelligence Platform
 
 A production-minded analytics project built on the
 [Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
@@ -100,6 +100,28 @@ make dashboard   # streamlit run dashboard/app.py
 `make all` chains setup → ingest → dbt-build → pytest → analyze.
 Every target also works standalone; the dbt CLI needs `DBT_PROFILES_DIR`,
 which the Makefile exports (profiles.yml contains only `env_var()` refs).
+
+## Deploy
+
+**Live demo:** *(Streamlit Community Cloud — link published on first deploy)*
+
+```
+push ─▶ GitHub Actions ── ruff · pytest · dbt build ──(SSL)──▶ Neon PostgreSQL
+Streamlit Community Cloud ── reads marts ────────────────────────┘
+```
+
+- **Streamlit Cloud** runs `dashboard/app.py` on Python 3.12, installing
+  `requirements.txt` (generated with `uv export --frozen --no-dev --no-hashes`).
+  Connection params live in the app's `secrets` (`PGHOST`, `PGPORT`, `PGUSER`,
+  `PGPASSWORD`, `PGDATABASE`, `PGSSLMODE`) and are exported to the environment at
+  startup by `export_secrets_to_env()` in `dashboard/app.py`.
+- **Neon** (free tier) hosts the analytics database. It is loaded once with
+  `make ingest && make dbt-build` from a workstation (raw CSVs stay out of git).
+- **CI** (`.github/workflows/ci.yml`) re-runs lint, pytest and the full dbt
+  build — including all 83 data tests — on every push and pull request.
+- Cold starts: free-tier Neon compute and the Streamlit app scale to zero when
+  idle, so the first load after a pause can take 10–30 s.
+- Local alternative: `docker-compose.yml` + `make db-up` (see Setup).
 
 ## Verified headline results
 

@@ -26,6 +26,7 @@ class Settings:
     password: str | None
     dbname: str
     data_dir: Path
+    sslmode: str | None = None
 
     @property
     def dsn(self) -> str:
@@ -37,6 +38,8 @@ class Settings:
         ]
         if self.password:
             parts.append(f"password={self.password}")
+        if self.sslmode:
+            parts.append(f"sslmode={self.sslmode}")
         return " ".join(parts)
 
     @property
@@ -57,4 +60,5 @@ def load_settings() -> Settings:
         password=os.environ.get("PGPASSWORD") or None,
         dbname=_env("PGDATABASE", "olist_analytics"),
         data_dir=data_dir,
+        sslmode=os.environ.get("PGSSLMODE") or None,
     )

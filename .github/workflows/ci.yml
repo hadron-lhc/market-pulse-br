@@ -1,0 +1,44 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    env:
+      PGHOST: ${{ secrets.PGHOST }}
+      PGPORT: ${{ secrets.PGPORT }}
+      PGUSER: ${{ secrets.PGUSER }}
+      PGPASSWORD: ${{ secrets.PGPASSWORD }}
+      PGDATABASE: ${{ secrets.PGDATABASE }}
+      PGSSLMODE: ${{ secrets.PGSSLMODE }}
+      DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Lint
+        run: |
+          uv run ruff check src tests analysis dashboard
+          uv run ruff format --check src tests analysis dashboard
+
+      - name: Unit tests (no database required)
+        if: env.PGHOST == ''
+        run: uv run pytest tests/test_config.py tests/test_ingest_unit.py
+
+      - name: Full test suite (against Neon)
+        if: env.PGHOST != ''
+        run: uv run pytest
+
+      - name: dbt build + data tests (against Neon)
+        if: env.PGHOST != ''
+        run: uv run dbt build --project-dir dbt_project

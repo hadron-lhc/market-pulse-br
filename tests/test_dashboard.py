@@ -28,7 +28,7 @@ def test_dashboard_renders_core_elements():
     at = AppTest.from_file(str(REPO_ROOT / "dashboard" / "app.py"), default_timeout=120)
     at.run()
     assert not at.exception, at.exception
-    assert at.title[0].value == "E-commerce Intelligence Platform"
+    assert at.title[0].value == "Market Pulse"
     assert [t.label for t in at.tabs] == [
         "Revenue",
         "Categories",
