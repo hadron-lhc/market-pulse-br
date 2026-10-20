@@ -60,7 +60,7 @@ Prerequisites: Python 3.12+, [uv](https://docs.astral.sh/uv/), PostgreSQL
 (local install or Docker).
 
 ```bash
-git clone <this repo> && cd e-commerce-intelligence-platform
+git clone git@github.com:hadron-lhc/market-pulse-br.git && cd market-pulse-br
 cp .env.example .env         # then edit PG* settings (see below)
 uv sync                      # install Python deps (incl. dbt)
 ```
@@ -103,7 +103,8 @@ which the Makefile exports (profiles.yml contains only `env_var()` refs).
 
 ## Deploy
 
-**Live demo:** *(Streamlit Community Cloud — link published on first deploy)*
+**Live demo:** [market-pulse-br.streamlit.app](https://market-pulse-br.streamlit.app)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://market-pulse-br.streamlit.app)
 
 ```
 push ─▶ GitHub Actions ── ruff · pytest · dbt build ──(SSL)──▶ Neon PostgreSQL
